@@ -47,10 +47,10 @@ private:
 	void OnComputeDFT(wxCommandEvent& event);
 	void OnComputeIDFT(wxCommandEvent& event);
 	void OnAddNoise(wxCommandEvent& event);
-	void OnChangeResizeOption(wxCommandEvent& event);
+	
 	void OnChangeScaleOption(wxCommandEvent& event);
 	void OnAreaChange(wxScrollEvent& event);
-	void OnThumbRelease(wxScrollEvent& event);
+	
 	void OnOpenImage(wxCommandEvent& event);
 	void OnResizeImage(wxCommandEvent& event);
 	void changeScale(scaleMode mode);

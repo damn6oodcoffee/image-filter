@@ -63,7 +63,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     wxFloatingPointValidator<double> floatValidator(nullptr, wxNUM_VAL_NO_TRAILING_ZEROES);
     floatValidator.SetRange(0.0, 100.0);
 
-    auto noisePercentTxt = new wxStaticText(this, wxID_ANY, "Noise Power:    ", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+    auto noisePercentTxt = new wxStaticText(this, wxID_ANY, "Noise Power (%):    ", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
     noisePercentTxtCtrl = new wxTextCtrl(this, wxID_ANY);
     noisePercentTxtCtrl->SetValue("50");
     noisePercentTxtCtrl->SetValidator(floatValidator);
@@ -76,7 +76,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     resizeButton = new wxButton(this, wxID_ANY, "Resize");
     wxString choices[2] = { wxString("Zero Padding"), wxString("Bilinear Interpolation") };
     resizeOptions = new wxRadioBox(this, wxID_ANY, "Resize Option", wxDefaultPosition, wxDefaultSize, 2, choices, 2, wxRA_SPECIFY_COLS);
-    resizeOptions->Bind(wxEVT_RADIOBOX, &MainFrame::OnChangeResizeOption, this);
+    //resizeOptions->Bind(wxEVT_RADIOBOX, &MainFrame::OnChangeResizeOption, this);
     resizeButton->Bind(wxEVT_BUTTON, &MainFrame::OnResizeImage, this);
     resizeWidthTxtCtrl->SetValue("0");
     resizeHeightTxtCtrl->SetValue("0");
@@ -92,7 +92,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     areaSlider = new wxSlider(this, wxID_ANY, 1, 0, 10, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_LABELS);
     areaSlider->SetRange(0, 100);
     areaSlider->Bind(wxEVT_SCROLL_THUMBTRACK, &MainFrame::OnAreaChange, this);
-    areaSlider->Bind(wxEVT_SCROLL_THUMBRELEASE, &MainFrame::OnThumbRelease, this);
+    //areaSlider->Bind(wxEVT_SCROLL_THUMBRELEASE, &MainFrame::OnThumbRelease, this);
     choices[0] = wxString("Low"); choices[1] = wxString("High");
     filterPassMode = new wxRadioBox(this, wxID_ANY, "Filter Pass Mode", wxDefaultPosition, wxDefaultSize, 2, choices, 1, wxRA_SPECIFY_COLS);
     filterPassMode->Bind(wxEVT_RADIOBOX, &MainFrame::OnChangeScaleOption, this);
@@ -114,7 +114,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     controlsGridBagSizer->Add(filterPassMode, wxGBPosition(8, 1), wxGBSpan(2, 1), wxEXPAND);
     controlsGridBagSizer->Add(computeDFTButton, wxGBPosition(8, 2), wxGBSpan(1, 1), wxEXPAND | wxALL, FromDIP(5));
     controlsGridBagSizer->Add(computeIDFTButton, wxGBPosition(9, 2), wxGBSpan(1, 1), wxALL, FromDIP(5));
-    controlsGridBagSizer->Add(areaSlider, wxGBPosition(10, 0), wxGBSpan(1, 3), wxEXPAND);
+    controlsGridBagSizer->Add(new wxStaticText(this, wxID_ANY, "Filter Area Size:"), wxGBPosition(10, 1), wxGBSpan(1, 1), wxEXPAND| wxALIGN_CENTER_HORIZONTAL | wxTOP, FromDIP(25));
+    controlsGridBagSizer->Add(areaSlider, wxGBPosition(11, 0), wxGBSpan(1, 3), wxEXPAND);
 
 
     mainSizer->Add(imageGridSizer, 3, wxSHAPED | wxALIGN_CENTER | wxALL, FromDIP(10));
@@ -133,12 +134,11 @@ void MainFrame::OnOpenImage(wxCommandEvent& event) {
     imageNameTxtCtrl->SetValue(path);
     imgFilter.LoadFromFile(path);
 
-    //
+ 
     wxBitmap bmp{ imgFilter.NoisyImageBmp() };
     imgBitmap->SetBitmap(bmp);
     resizeWidthTxtCtrl->SetValue(std::format("{}", bmp.GetWidth()));
     resizeHeightTxtCtrl->SetValue(std::format("{}", bmp.GetHeight()));
-    // TODO: Open Image event to mediator
     dftBitmap->SetBitmap(wxBitmap(1, 1));
     filteredImgBitmap->SetBitmap(wxBitmap(1, 1));
     idftBitmap->SetBitmap(wxBitmap(1, 1));
@@ -148,7 +148,6 @@ void MainFrame::OnComputeDFT(wxCommandEvent& event) {
     imgFilter.ComputeFourierTransform();
     int sel{ dftScaleOptions->GetSelection() };
     changeScale(static_cast<scaleMode>(sel));
-    //wxMessageBox( wxT("OnComputeDFT"), wxT("OnComputeDFT"), wxICON_INFORMATION);
     filteredImgBitmap->SetBitmap(wxBitmap(1, 1));
     idftBitmap->SetBitmap(wxBitmap(1, 1));
 }
@@ -172,7 +171,7 @@ void MainFrame::OnComputeIDFT(wxCommandEvent& event) {
     changeScale(static_cast<scaleMode>(sel));
     wxBitmap bmp{ imgFilter.ProccessedImageBmp() };
     idftBitmap->SetBitmap(bmp);
-    //wxMessageBox( wxT("OnComputeIDFT"), wxT("OnComputeIDFT"), wxICON_INFORMATION);
+
 }
 
 
@@ -184,7 +183,7 @@ void MainFrame::OnAddNoise(wxCommandEvent& event) {
     imgFilter.AddNoise(percent);
     wxBitmap bmp{ imgFilter.NoisyImageBmp() };
     imgBitmap->SetBitmap(bmp);
-    //wxMessageBox( wxT("OnAddNoise"), wxT("OnAddNoise"), wxICON_INFORMATION);
+    
 }
 
 void MainFrame::OnResizeImage(wxCommandEvent& event) {
@@ -222,14 +221,9 @@ void MainFrame::OnResizeImage(wxCommandEvent& event) {
 }
 
 
-void MainFrame::OnChangeResizeOption(wxCommandEvent& event) {
-
-    //wxMessageBox( wxT("OnChangeResizeOption"), wxT("OnChangeResizeOption"), wxICON_INFORMATION);
-}
 void MainFrame::OnChangeScaleOption(wxCommandEvent& event) {
     int sel{ dftScaleOptions->GetSelection() };
     changeScale(static_cast<scaleMode>(sel));
-    //wxMessageBox( wxT("OnChangeScaleOption"), wxT("OnChangeScaleOption"), wxICON_INFORMATION);
 }
 
 void MainFrame::changeScale(scaleMode mode) {
@@ -254,9 +248,5 @@ void MainFrame::changeScale(scaleMode mode) {
 void MainFrame::OnAreaChange(wxScrollEvent& event) {
     double maskSize{ static_cast<double>(areaSlider->GetValue()) / 100.0 };
     dftBitmap->SetCircleAreaSize(maskSize);
-}
-
-void MainFrame::OnThumbRelease(wxScrollEvent& event) {
-
 }
 
